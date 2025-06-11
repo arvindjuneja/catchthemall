@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Card Browser</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Pokémon TCG Browser</h1>
+        <nav>
+            <a href="scanner.html">Card Scanner</a>
+            <a href="collection.html">My Collection</a>
+        </nav>
+        <div class="controls-container">
+            <div class="set-selector-wrapper">
+                <label for="set-selector">Select a Set:</label>
+                <select id="set-selector">
+                    <option value="">-- Choose a Pokémon Set --</option>
+                </select>
+            </div>
+            <div id="filter-controls" class="hidden">
+                <input type="text" id="search-bar" placeholder="Search by name...">
+                <select id="type-filter">
+                    <option value="">All Types</option>
+                </select>
+                <select id="rarity-filter">
+                    <option value="">All Rarities</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <main id="cards-container"></main>
+
+    <div id="card-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div id="modal-card-content"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

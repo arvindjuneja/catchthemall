@@ -1,0 +1,363 @@
+{
+  "name": "Competitor Monitoring System",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "f1c7d17e-e4a1-4b0a-8c3e-7d5a2b9f0e8c",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Company configuration with verified base URLs\nconst companies = [\n  {\n    name: \"EY Poland\",\n    color: \"#FFE600\",\n    baseUrl: \"https://www.ey.com\",\n    urls: {\n      main: \"https://www.ey.com/pl_pl\",\n      articles: \"https://www.ey.com/pl_pl/insights\",\n      events: \"https://www.ey.com/pl_pl/events\", \n      careers: \"https://www.ey.com/pl_pl/careers\"\n    }\n  },\n  {\n    name: \"Deloitte Poland\", \n    color: \"#86BC25\",\n    baseUrl: \"https://www2.deloitte.com\",\n    urls: {\n      main: \"https://www2.deloitte.com/pl/pl.html\",\n      articles: \"https://www2.deloitte.com/pl/pl/pages/insights.html\",\n      events: \"https://www2.deloitte.com/pl/pl/pages/events.html\",\n      careers: \"https://www2.deloitte.com/pl/pl/pages/careers.html\"\n    }\n  },\n  {\n    name: \"KPMG Poland\",\n    color: \"#00338D\", \n    baseUrl: \"https://kpmg.com\",\n    urls: {\n      main: \"https://kpmg.com/pl/pl/home.html\",\n      articles: \"https://kpmg.com/pl/pl/home/insights.html\",\n      events: \"https://kpmg.com/pl/pl/home/events.html\", \n      careers: \"https://kpmg.com/pl/pl/home/careers.html\"\n    }\n  },\n  {\n    name: \"Accenture Poland\",\n    color: \"#A100FF\",\n    baseUrl: \"https://www.accenture.com\", \n    urls: {\n      main: \"https://www.accenture.com/pl-pl\",\n      articles: \"https://www.accenture.com/pl-pl/insights\",\n      events: \"https://www.accenture.com/pl-pl/about/events\",\n      careers: \"https://www.accenture.com/pl-pl/careers\"\n    }\n  },\n  {\n    name: \"PwC Poland\",\n    color: \"#FF6600\",\n    baseUrl: \"https://www.pwc.pl\",\n    urls: {\n      main: \"https://www.pwc.pl/\",\n      articles: \"https://www.pwc.pl/pl/publikacje.html\", \n      events: \"https://www.pwc.pl/pl/wydarzenia.html\",\n      careers: \"https://www.pwc.pl/pl/kariera.html\"\n    }\n  }\n];\n\n// Create array with company-page combinations\nconst results = [];\ncompanies.forEach(company => {\n  Object.keys(company.urls).forEach(pageType => {\n    results.push({\n      company: company.name,\n      color: company.color,\n      baseUrl: company.baseUrl,\n      pageType: pageType,\n      url: company.urls[pageType],\n      timestamp: new Date().toISOString()\n    });\n  });\n});\n\nreturn results.map(item => ({ json: item }));"
+      },
+      "id": "a2b3c4d5-e6f7-8901-2345-6789abcdef01",
+      "name": "Setup Companies",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "seconds"
+      },
+      "id": "cdef0123-4567-89ab-cdef-0123456789f0",
+      "name": "Rate Limit Delay",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        570,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$json.url}}",
+        "options": {
+          "timeout": 30000,
+          "retry": {
+            "enabled": true,
+            "maxRetries": 3
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "pl,en;q=0.5"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br"
+            }
+          ]
+        }
+      },
+      "id": "b3c4d5e6-f789-0123-4567-89abcdef0123",
+      "name": "Fetch Website Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        680,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c4d5e6f7-8901-2345-6789-abcdef012345",
+              "leftValue": "={{$json.statusCode}}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d4e5f678-9012-3456-789a-bcdef0123456",
+      "name": "Check Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Content extraction and analysis\nconst cheerio = require('cheerio');\nconst crypto = require('crypto');\n\n// Get the HTML content\nconst html = $input.item.json.data || '';\nconst company = $input.item.json.company;\nconst pageType = $input.item.json.pageType;\nconst baseUrl = $input.item.json.baseUrl;\nconst currentUrl = $input.item.json.url;\n\nif (!html) {\n  return [];\n}\n\n// Load HTML with cheerio\nconst $ = cheerio.load(html);\n\n// Content selectors based on page type\nconst selectors = {\n  articles: [\n    'article h1, article h2, article h3',\n    '.insight-title, .article-title, .publication-title',\n    '.news-item h2, .news-item h3',\n    '[class*=\"article\"] h2, [class*=\"insight\"] h2',\n    '[class*=\"publication\"] h2, [class*=\"report\"] h2',\n    '.content-title, .post-title',\n    'h2 a[href*=\"/insights/\"], h3 a[href*=\"/insights/\"]'\n  ],\n  events: [\n    '.event-title, .event-name, .event-heading',\n    '[class*=\"event\"] h2, [class*=\"event\"] h3',\n    '.upcoming-events h2, .upcoming-events h3',\n    '.conference-title, .webinar-title',\n    '[class*=\"webinar\"] h2, [class*=\"conference\"] h2',\n    'h2 a[href*=\"/events/\"], h3 a[href*=\"/events/\"]',\n    '.calendar-event h2, .calendar-event h3'\n  ],\n  careers: [\n    '.job-title, .position-title, .career-title',\n    '[class*=\"job\"] h2, [class*=\"career\"] h2',\n    '.vacancy-title, .opening-title',\n    '[class*=\"position\"] h2, [class*=\"role\"] h2',\n    'h2 a[href*=\"/careers/\"], h3 a[href*=\"/careers/\"]',\n    '.job-listing h2, .job-listing h3'\n  ],\n  main: [\n    '.news h2, .news h3, .latest h2, .latest h3',\n    '.announcement-title, .press-release h2',\n    '[class*=\"latest\"] h2, [class*=\"recent\"] h2',\n    '[class*=\"news\"] h2, [class*=\"update\"] h2',\n    '.hero-title, .featured h2',\n    'h1, h2:first-of-type'\n  ]\n};\n\n// Extract content\nlet content = [];\nconst currentSelectors = selectors[pageType] || selectors.main;\n\ncurrentSelectors.forEach(selector => {\n  $(selector).each((i, el) => {\n    const element = $(el);\n    const text = element.text().trim();\n    \n    // Skip if text is too short or contains common non-content\n    if (!text || text.length < 15 || \n        text.toLowerCase().includes('cookie') ||\n        text.toLowerCase().includes('newsletter') ||\n        text.toLowerCase().includes('subscribe')) {\n      return;\n    }\n    \n    // Find associated link\n    let link = null;\n    \n    // Check if element itself is a link\n    if (element.is('a')) {\n      link = element.attr('href');\n    } else {\n      // Look for link in parent or child elements\n      const parentLink = element.closest('a').attr('href');\n      const childLink = element.find('a').first().attr('href');\n      link = parentLink || childLink;\n    }\n    \n    // Convert relative URLs to absolute\n    if (link) {\n      try {\n        if (link.startsWith('/')) {\n          link = baseUrl + link;\n        } else if (link.startsWith('./')) {\n          link = baseUrl + link.substring(1);\n        } else if (!link.startsWith('http')) {\n          link = baseUrl + '/' + link;\n        }\n      } catch (e) {\n        link = null;\n      }\n    }\n    \n    // Create content hash for comparison\n    const contentHash = crypto.createHash('md5').update(text + (link || '')).digest('hex');\n    \n    // Check for duplicates in current extraction\n    if (!content.some(item => item.hash === contentHash)) {\n      content.push({\n        title: text,\n        link: link,\n        hash: contentHash,\n        extractedAt: new Date().toISOString()\n      });\n    }\n  });\n});\n\n// Limit to most relevant content (top 20 items)\ncontent = content.slice(0, 20);\n\n// Create overall page hash\nconst pageHash = crypto.createHash('md5')\n  .update(JSON.stringify(content.map(item => item.hash)))\n  .digest('hex');\n\nreturn [{\n  json: {\n    company: company,\n    pageType: pageType,\n    url: currentUrl,\n    content: content,\n    pageHash: pageHash,\n    contentCount: content.length,\n    timestamp: new Date().toISOString(),\n    color: $input.item.json.color\n  }\n}];"
+      },
+      "id": "e5f67890-1234-5678-90ab-cdef01234567",
+      "name": "Extract Content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Change detection logic\nconst crypto = require('crypto');\n\ntry {\n  // Get current data\n  const company = $json.company;\n  const pageType = $json.pageType;\n  const currentPageHash = $json.pageHash;\n  const currentContent = $json.content || [];\n  const storageKey = `${company}_${pageType}`;\n\n  // Get workflow static data for persistence\n  const staticData = $workflow.getStaticData('global');\n\n  // Get previous data\n  const previousPageHash = staticData[`${storageKey}_hash`];\n  const previousContent = staticData[`${storageKey}_content`] || [];\n\n  console.log(`Checking ${company} - ${pageType}: Previous hash: ${previousPageHash}, Current hash: ${currentPageHash}`);\n\n  // Initialize tracking if first run\n  if (!previousPageHash) {\n    console.log(`First run for ${storageKey} - storing initial data`);\n    staticData[`${storageKey}_hash`] = currentPageHash;\n    staticData[`${storageKey}_content`] = currentContent;\n    staticData[`${storageKey}_lastCheck`] = new Date().toISOString();\n    return []; // No changes on first run\n  }\n\n  // Check if content changed\n  if (currentPageHash === previousPageHash) {\n    console.log(`No changes detected for ${storageKey}`);\n    staticData[`${storageKey}_lastCheck`] = new Date().toISOString();\n    return []; // No changes\n  }\n\n  console.log(`Changes detected for ${storageKey}!`);\n\n  // Find new content items\n  const newItems = currentContent.filter(currentItem => \n    !previousContent.some(prevItem => prevItem.hash === currentItem.hash)\n  );\n\n  // Update stored data\n  staticData[`${storageKey}_hash`] = currentPageHash;\n  staticData[`${storageKey}_content`] = currentContent;\n  staticData[`${storageKey}_lastCheck`] = new Date().toISOString();\n\n  if (newItems.length > 0) {\n    console.log(`Found ${newItems.length} new items for ${storageKey}`);\n    \n    return [{\n      json: {\n        company: company,\n        pageType: pageType,\n        url: $json.url,\n        newItems: newItems,\n        totalNewItems: newItems.length,\n        color: $json.color,\n        timestamp: new Date().toISOString()\n      }\n    }];\n  } else {\n    console.log(`Content changed but no new items identified for ${storageKey}`);\n    return [];\n  }\n} catch (error) {\n  console.error('Error in change detection:', error.message);\n  // Return empty array on error to prevent workflow failure\n  return [];\n}"
+      },
+      "id": "f6789012-3456-789a-bcde-f0123456789a",
+      "name": "Detect Changes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "789a0123-4567-89ab-cdef-0123456789ab",
+              "leftValue": "={{$json.totalNewItems}}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "89ab0123-4567-89ab-cdef-0123456789bc",
+      "name": "Has New Content",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format Teams message\nconst company = $json.company;\nconst pageType = $json.pageType;\nconst newItems = $json.newItems || [];\nconst color = $json.color;\nconst url = $json.url;\n\n// Page type labels in Polish\nconst pageTypeLabels = {\n  main: \"🏠 Strona główna\",\n  articles: \"📚 Artykuły/Publikacje\",\n  events: \"📅 Wydarzenia\", \n  careers: \"💼 Kariera\"\n};\n\n// Create facts array for Teams card\nconst facts = newItems.slice(0, 10).map((item, index) => ({\n  name: `📄 Nowa pozycja ${index + 1}:`,\n  value: item.link ? `[${item.title}](${item.link})` : item.title\n}));\n\n// Add summary fact\nif (newItems.length > 10) {\n  facts.push({\n    name: \"ℹ️ Informacja:\",\n    value: `Znaleziono łącznie ${newItems.length} nowych pozycji. Pokazano pierwsze 10.`\n  });\n}\n\n// Create Teams adaptive card\nconst teamsMessage = {\n  \"@type\": \"MessageCard\",\n  \"@context\": \"http://schema.org/extensions\",\n  \"themeColor\": color,\n  \"summary\": `Nowa zawartość - ${company}`,\n  \"sections\": [{\n    \"activityTitle\": \"🚨 Wykryto nową zawartość!\",\n    \"activitySubtitle\": `**${company}** - ${pageTypeLabels[pageType] || pageType}`,\n    \"activityImage\": \"https://img.icons8.com/color/96/000000/website.png\",\n    \"facts\": facts,\n    \"markdown\": true\n  }],\n  \"potentialAction\": [{\n    \"@type\": \"OpenUri\",\n    \"name\": \"🌐 Zobacz stronę\",\n    \"targets\": [{\n      \"os\": \"default\",\n      \"uri\": url\n    }]\n  }]\n};\n\nreturn [{\n  json: teamsMessage\n}];"
+      },
+      "id": "9abc0123-4567-89ab-cdef-0123456789cd",
+      "name": "Format Teams Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "url": "YOUR_TEAMS_WEBHOOK_URL_HERE",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{$json}}",
+        "options": {
+          "timeout": 10000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "id": "abcd0123-4567-89ab-cdef-0123456789de",
+      "name": "Send Teams Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2000,
+        260
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Simple error logging without static data access\nconst company = $input.item.json.company || 'Unknown';\nconst pageType = $input.item.json.pageType || 'Unknown';\nconst url = $input.item.json.url || 'Unknown URL';\nconst statusCode = $input.item.json.statusCode || 'No status';\nconst error = $input.item.json.error || 'Unknown error';\n\n// Log error details\nconsole.error(`❌ Error fetching content:`);\nconsole.error(`   Company: ${company}`);\nconsole.error(`   Page Type: ${pageType}`);\nconsole.error(`   URL: ${url}`);\nconsole.error(`   Status Code: ${statusCode}`);\nconsole.error(`   Error: ${error}`);\nconsole.error(`   Timestamp: ${new Date().toISOString()}`);\n\n// Return the error information for potential further processing\nreturn [{\n  json: {\n    errorType: 'fetch_failed',\n    company: company,\n    pageType: pageType,\n    url: url,\n    statusCode: statusCode,\n    error: error,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "bcde0123-4567-89ab-cdef-0123456789ef",
+      "name": "Handle Errors",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Setup Companies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setup Companies": {
+      "main": [
+        [
+          {
+            "node": "Rate Limit Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rate Limit Delay": {
+      "main": [
+        [
+          {
+            "node": "Fetch Website Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Website Content": {
+      "main": [
+        [
+          {
+            "node": "Check Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Success": {
+      "main": [
+        [
+          {
+            "node": "Extract Content",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Errors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Content": {
+      "main": [
+        [
+          {
+            "node": "Detect Changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Changes": {
+      "main": [
+        [
+          {
+            "node": "Has New Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has New Content": {
+      "main": [
+        [
+          {
+            "node": "Format Teams Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Format Teams Message": {
+      "main": [
+        [
+          {
+            "node": "Send Teams Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-06-11T10:00:00.000Z",
+  "versionId": "1"
+}

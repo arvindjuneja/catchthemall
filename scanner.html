@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Card Scanner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+    <header>
+        <h1>Card Scanner</h1>
+        <p>Point your camera at a Pokémon card to add it to your collection.</p>
+        <nav>
+            <a href="index.html">Card Browser</a>
+            <a href="collection.html">My Collection</a>
+        </nav>
+    </header>
+
+    <main class="scanner-container">
+        <div id="scanner-ui">
+            <div class="video-container">
+                <video id="camera-feed" playsinline autoplay></video>
+                <div id="camera-overlay">
+                    <div class="scan-box"></div>
+                </div>
+            </div>
+            <div class="scanner-controls">
+                <button id="start-scan-btn">Start Camera</button>
+                <button id="capture-btn" class="hidden">Scan Card</button>
+            </div>
+        </div>
+
+        <div id="results-container" class="hidden">
+            <h2>Scan Result</h2>
+            <div id="result-card">
+                <!-- Matched card will be displayed here -->
+            </div>
+            <div id="result-actions">
+                <button id="save-collection-btn">Save to Collection</button>
+                <button id="scan-again-btn">Scan Another</button>
+            </div>
+        </div>
+
+        <div id="loading-indicator" class="hidden">
+            <p>Scanning...</p>
+        </div>
+    </main>
+
+    <script src="scanner.js"></script>
+</body>
+</html> 

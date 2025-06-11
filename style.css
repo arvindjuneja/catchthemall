@@ -1,0 +1,479 @@
+:root {
+    --primary-color: #ffcb05; /* Pokémon Yellow */
+    --secondary-color: #2a75bb; /* Pokémon Blue */
+    --dark-color: #333;
+    --light-color: #f7f7f7;
+    --grey-color: #e0e0e0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    background-color: var(--light-color);
+    color: var(--dark-color);
+}
+
+header {
+    background: linear-gradient(135deg, var(--secondary-color), #3c92e0);
+    color: white;
+    padding: 20px 30px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+header h1 {
+    margin: 0 0 15px 0;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+header nav {
+    margin-top: 15px;
+}
+
+header nav a {
+    color: white;
+    margin: 0 15px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+header nav a:hover {
+    color: var(--primary-color);
+}
+
+.controls-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.controls-container label {
+    font-size: 1.1em;
+    margin-right: 10px;
+    font-weight: 600;
+}
+
+#set-selector, #search-bar, #type-filter, #rarity-filter {
+    padding: 10px 15px;
+    font-size: 1em;
+    border-radius: 8px;
+    border: 2px solid var(--primary-color);
+    background-color: white;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#search-bar, #type-filter, #rarity-filter {
+    border-color: #a7d8ff;
+}
+
+.hidden {
+    display: none;
+}
+
+#cards-container {
+    padding: 40px 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 40px 30px;
+    max-width: 1600px;
+    margin: 0 auto;
+    perspective: 1500px;
+}
+
+.card {
+    background: none;
+    border: none;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.card__content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.card:hover .card__content {
+     box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+}
+
+.card__content img {
+    width: 100%;
+    display: block;
+    border-radius: 12px;
+}
+
+.card__shine {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.4s;
+}
+
+.card__info {
+    padding: 15px 5px;
+    text-align: center;
+}
+
+.card__info h2 {
+    font-size: 1.1em;
+    margin: 0 0 5px 0;
+}
+
+.card__info p {
+    font-size: 0.9em;
+    margin: 5px 0;
+    color: #666;
+}
+
+.prices {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.prices h3 {
+    font-size: 0.9em;
+    margin: 0 0 8px 0;
+    color: #333;
+    font-weight: 600;
+}
+
+.prices p {
+    font-size: 0.85em;
+    margin: 4px 0;
+    color: #555;
+}
+
+/* Modal Styles */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0.9); }
+    to { transform: scale(1); }
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 30px;
+    width: 90%;
+    max-width: 900px;
+    border-radius: 15px;
+    position: relative;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    animation: scaleUp 0.3s ease-out;
+}
+
+.modal-close {
+    color: #888;
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.modal-close:hover,
+.modal-close:focus {
+    color: var(--dark-color);
+}
+
+#modal-card-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+#modal-card-content img {
+    flex: 1 1 300px; /* Flex properties for responsiveness */
+    max-width: 40%;
+    height: auto;
+    object-fit: contain;
+    border-radius: 15px;
+}
+
+#modal-card-content .details {
+    flex: 1 1 400px;
+}
+#modal-card-content h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 2em;
+    color: var(--secondary-color);
+}
+#modal-card-content h3 {
+    border-bottom: 2px solid var(--grey-color);
+    padding-bottom: 8px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1.4em;
+}
+#modal-card-content p {
+    margin: 8px 0;
+    line-height: 1.6;
+}
+#modal-card-content .attack {
+    margin-bottom: 15px;
+    padding-left: 10px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.modal-prices {
+    margin-top: 20px;
+    background-color: var(--light-color);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+/* New Scanner Page Styles */
+
+.scanner-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+#scanner-ui, #results-container {
+    width: 100%;
+    max-width: 600px;
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+#camera-feed {
+    width: 100%;
+    display: block;
+}
+
+#camera-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.scan-box {
+    width: 80%;
+    height: 80%;
+    border: 3px dashed rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 0 2000px rgba(0,0,0,0.5);
+}
+
+.scanner-controls button {
+    padding: 12px 25px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background-color: var(--secondary-color);
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.scanner-controls button:hover {
+    background-color: #3c92e0;
+}
+
+#result-card {
+    margin: 20px 0;
+}
+
+#result-card .card {
+    margin: 0 auto; /* Center the card */
+    width: 220px;
+}
+
+/* Remove old styles */
+#scanner-page .result-card,
+.result-card-layout,
+.result-card-image img,
+.result-card-details h2,
+.result-card-details p {
+    all: unset;
+}
+
+/* New Scan Result Card Styles */
+.scan-result-card {
+    background: #fff;
+    border-radius: 18px;
+    margin: 1rem auto;
+    max-width: 450px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.scan-result-image {
+    width: 100%;
+    padding: 2rem;
+    background: #f7f7f7;
+    box-sizing: border-box;
+}
+
+.scan-result-image img {
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
+    display: block;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.scan-result-details {
+    padding: 1.5rem;
+}
+
+.scan-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.scan-result-header h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--dark-color);
+    margin: 0;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.info-item {
+    background: #f7f7f7;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+}
+
+.info-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #666;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.info-value {
+    display: block;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.price-info {
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+}
+
+.price-info h3 {
+    text-align: center;
+    font-weight: 600;
+    color: #888;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.price-grid {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+}
+
+.price-item .price-label {
+    font-size: 0.8rem;
+    color: #666;
+}
+.price-item .price-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+}
+
+.ocr-status {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-weight: 600;
+    margin-left: 10px;
+    white-space: nowrap;
+}
+
+.ocr-status.confirmed {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.ocr-status.fallback {
+    background-color: #fff3cd;
+    color: #856404;
+} 
