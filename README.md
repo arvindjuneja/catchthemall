@@ -1,26 +1,32 @@
-Here's a complete Python script that will download all Pokémon cards right now! 
+# Pokémon TCG Collection Manager & Card Scanner
 
-**To run it:**
+This project provides a suite of tools to download, manage, and analyze your Pokémon TCG collection. It includes a powerful card downloader, a tool to generate CLIP embeddings for image-based search, and a web-based card scanner to identify cards from your webcam.
 
-1. **Install required packages:**
-```bash
-pip install requests
-```
+## Features
 
-2. **Run the script:**
-```bash
-python pokemon_downloader.py
-```
+- **Pokémon Card Downloader (`pokemon_downloader.py`)**:
+  - Automatically fetches all Pokémon card sets and card data from the [Pokémon TCG API](https://pokemontcg.io/).
+  - Downloads high-resolution and low-resolution card images.
+  - Organizes cards into a clean folder structure.
+  - Resumes downloads if interrupted.
+  - Logs any failed downloads.
 
-**What this script does:**
+- **CLIP Embeddings Generator (`pokemon_clip_embeddings.py`)**:
+  - Generates CLIP embeddings for all downloaded card images.
+  - Creates a searchable database of your card collection based on image similarity.
 
-🎯 **Downloads everything automatically:**
-- Fetches all Pokémon card sets from the API
-- Downloads all card data (name, HP, types, attacks, etc.)
-- Downloads both small and large images for each card
-- Creates organized folder structure
+- **Web-Based Card Scanner (`scanner.html`, `scanner.js`, `scanner_app.py`)**:
+  - Uses your webcam to identify Pokémon cards in real-time.
+  - Compares the webcam feed against the CLIP embeddings of your collection.
+  - Displays the closest matching card from your collection.
 
-📁 **Creates this file structure:**
+- **Secure Server (`secure_server.py`)**:
+  - Serves the web interface over HTTPS for secure webcam access.
+
+## File Structure
+
+The downloader script creates the following directory structure:
+
 ```
 pokemon_cards/
 ├── images/           # All card images
@@ -30,25 +36,39 @@ pokemon_cards/
 ├── data/            # JSON and CSV data
 │   ├── all_cards.json      # Complete database
 │   ├── pokemon_cards.csv   # Spreadsheet format
-│   ├── sets.json          # All set information
-│   ├── set_base1.json     # Individual set data
-│   └── failed_downloads.json # Any failed downloads
+│   └── ...
+└── embeddings/       # CLIP embeddings
+    └── clip_embeddings.pkl
 ```
 
-📊 **Features:**
-- Progress tracking with percentages
-- Resumes if interrupted (skips already downloaded images)
-- Creates CSV export for easy analysis
-- Handles API rate limiting automatically
-- Comprehensive error logging
-- Shows download statistics
+## How to Run
 
-**Expected results:**
-- ~20,000+ cards
-- ~2-4 GB of images
-- Takes 2-6 hours depending on connection
-- Creates a complete local database
+1.  **Install Dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-The script is production-ready and handles all edge cases. Once it finishes, you'll have a complete Pokémon card database ready for the CLIP embedding generation!
+2.  **Download Pokémon Cards:**
+    ```bash
+    python pokemon_downloader.py
+    ```
+    This will download all card data and images into the `pokemon_cards` directory. This can take several hours and a few gigabytes of space.
 
-Want me to also create a script that generates the CLIP embeddings from these downloaded images?
+3.  **Generate CLIP Embeddings:**
+    ```bash
+    python pokemon_clip_embeddings.py
+    ```
+    This will process the downloaded images and create the `clip_embeddings.pkl` file.
+
+4.  **Run the Web Server:**
+    Before running the server, you'll need to generate a self-signed SSL certificate for secure webcam access.
+    ```bash
+    openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/C=US/ST=CA/L=SF/O=Demo/CN=localhost"
+    ```
+    Then, start the server:
+    ```bash
+    python secure_server.py
+    ```
+
+5.  **Access the Card Scanner:**
+    Open your web browser and navigate to `https://localhost:8000/scanner.html`. You may need to accept a security warning due to the self-signed certificate.

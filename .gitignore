@@ -21,4 +21,5 @@ pokemon_cards/
 
 # Local secrets & certs
 *.key
-*.pem 
+*.pem
+n8n_fixed_workflow.json
